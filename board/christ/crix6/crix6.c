@@ -485,7 +485,7 @@ int board_phy_config(struct phy_device *phydev)
  * optimized pad skew values depends on CPU variant on the crix board:
  * i.MX6Q or i.MX6DL
  */
-#define CRIX_KSZ9031_CLK_SKEW  0x03df
+#define CRIX_KSZ9031_CLK_SKEW  0x03ff
 
         /* rx/tx clk skew */
         ksz9031_phy_extended_write(phydev, 2,
