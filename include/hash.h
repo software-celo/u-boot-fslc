@@ -14,6 +14,7 @@
 
 enum {
 	HASH_FLAG_VERIFY	= 1 << 0,	/* Enable verify mode */
+	HASH_FLAG_ADD		= 1 << 2,	/* Enable crc for split mem areas */
 	HASH_FLAG_ENV		= 1 << 1,	/* Allow env vars */
 };
 

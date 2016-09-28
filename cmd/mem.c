@@ -1235,6 +1235,14 @@ static int do_mem_crc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
+#ifdef CONFIG_CRC32_ADD
+	if (strcmp(*av, "-a") == 0) {
+		flags |= HASH_FLAG_ADD;
+		av++;
+		ac--;
+	}
+#endif
+
 	return hash_command("crc32", flags, cmdtp, flag, ac, av);
 }
 
@@ -1307,13 +1315,28 @@ U_BOOT_CMD(
 
 #ifndef CONFIG_HASH_VERIFY
 
+#ifndef CONFIG_HASH_ADD
+
 U_BOOT_CMD(
 	crc32,	4,	1,	do_mem_crc,
 	"checksum calculation",
 	"address count [addr]\n    - compute CRC32 checksum [save at addr]"
 );
 
+#else  /* CONFIG_HASH_ADD */
+
+U_BOOT_CMD(
+	crc32,  6,      1,      do_mem_crc,
+	"checksum calculation"
+	"address count [addr]\n    - compute CRC32 checksum [save at addr]\n"
+	"-a address count crc [addr]\n    - add to crc value [and save at addr]"
+);
+
+#endif /* CONFIG_HASH_ADD */
+
 #else	/* CONFIG_HASH_VERIFY */
+
+#ifndef CONFIG_HASH_ADD
 
 U_BOOT_CMD(
 	crc32,	5,	1,	do_mem_crc,
@@ -1321,6 +1344,18 @@ U_BOOT_CMD(
 	"address count [addr]\n    - compute CRC32 checksum [save at addr]\n"
 	"-v address count crc\n    - verify crc of memory area"
 );
+
+#else   /* CONFIG_HASH_ADD */
+
+U_BOOT_CMD(
+	crc32,  6,      1,      do_mem_crc,
+	"checksum calculation",
+	"address count [addr]\n    - compute CRC32 checksum [save at addr]\n"
+	"-v address count crc\n    - verify crc of memory area\n"
+	"-a address count crc [addr]\n    - add to crc value [and save at addr]"
+);
+
+#endif  /* CONFIG_HASH_ADD */
 
 #endif	/* CONFIG_HASH_VERIFY */
 

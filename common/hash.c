@@ -396,7 +396,7 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 {
 	ulong addr, len;
 
-	if ((argc < 2) || ((flags & HASH_FLAG_VERIFY) && (argc < 3)))
+	if ((argc < 2) || ((flags & HASH_FLAG_VERIFY) && (argc < 3)) || ((flags & HASH_FLAG_ADD) && (argc < 3)))
 		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(*argv++, NULL, 16);
@@ -420,7 +420,45 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 		}
 
 		buf = map_sysmem(addr, len);
+
+//# check wheter crc32 is used and if add parameter is set
+//# if so use crc_32 with the add value as start crc
+#ifdef CONFIG_HASH_ADD
+		uint8_t addcrc[HASH_MAX_DIGEST_SIZE];
+		uint32_t crc = 0;
+
+		if ((flags & (HASH_FLAG_ENV | HASH_FLAG_ADD)) && (0 == strcmp(algo->name, "crc32"))) {
+
+			if (parse_verify_sum(algo, *argv, addcrc,
+					flags & HASH_FLAG_ENV)) {
+				printf("ERROR: %s does not contain a valid "
+					"%s sum\n", *argv, algo->name);
+				return 1;
+			}
+
+			argc--;
+			argv++;
+
+			crc = addcrc[3] | (addcrc[2] << 8) | (addcrc[1] << 16) | (addcrc[0] << 24);
+			crc = crc32_wd(crc, (const uchar *)addr, len, algo->chunk_size);
+
+			output[0] = (crc >> 24) & 0xFF;
+			output[1] = (crc >> 16) & 0xFF;
+			output[2] = (crc >> 8) & 0xFF;
+			output[3] = crc & 0xFF;
+
+			char crc_str[9];
+			crc_str[8] = '\0';
+			sprintf(crc_str, "%08x", crc);
+
+			setenv("crc_last", crc_str);
+
+		} else {
+			algo->hash_func_ws(buf, len, output, algo->chunk_size);
+		}
+#else
 		algo->hash_func_ws(buf, len, output, algo->chunk_size);
+#endif
 		unmap_sysmem(buf);
 
 		/* Try to avoid code bloat when verify is not needed */
@@ -460,10 +498,19 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 		ulong crc;
 		ulong *ptr;
 
-		crc = crc32_wd(0, (const uchar *)addr, len, CHUNKSZ_CRC32);
+		if (flags & HASH_FLAG_ADD) {
+			crc = simple_strtoul(*argv++, NULL, 16);
+			argc--;
+		} else {
+			crc = 0;
+		}
+
+		crc = crc32_wd(crc, (const uchar *)addr, len, CHUNKSZ_CRC32);
 
 		printf("CRC32 for %08lx ... %08lx ==> %08lx\n",
 				addr, addr + len - 1, crc);
+
+		setenv_hex("crc_last", crc);
 
 		if (argc >= 3) {
 			ptr = (ulong *)simple_strtoul(argv[0], NULL, 16);
