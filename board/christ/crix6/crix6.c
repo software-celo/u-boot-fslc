@@ -634,6 +634,19 @@ int board_late_init(void)
 		setenv("board_rev", "MX6DL");
 #endif
 
+	/* christ: reset bootcheck to 0 if set to 1 and set last_bootcheck accordingly */
+	char *last_bootcheck = getenv("bootcheck");
+
+	if (last_bootcheck != NULL)
+		setenv("last_bootcheck", last_bootcheck);
+	else
+		setenv("last_bootcheck", "0");
+	setenv("bootcheck", "0");
+
+#ifndef CONFIG_ENV_IS_NOWHERE
+	saveenv();
+#endif
+
 	return 0;
 }
 
