@@ -53,26 +53,6 @@
 /* Command definition */
 #define CONFIG_CMD_BMODE
 
-#ifdef CONFIG_SUPPORT_EMMC_BOOT
-#define EMMC_ENV \
-	"emmcdev=1\0" \
-	"update_emmc_firmware=" \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"if ${get_cmd} ${update_sd_firmware_filename}; then " \
-			"if mmc dev ${emmcdev} 1; then "	\
-				"setexpr fw_sz ${filesize} / 0x200; " \
-				"setexpr fw_sz ${fw_sz} + 1; "	\
-				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
-			"fi; "	\
-		"fi\0"
-#else
-#define EMMC_ENV ""
-#endif
-
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #ifndef VIDEO_ARGS
@@ -84,10 +64,12 @@
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"script=boot.scr\0" \
+	"script=boot.img\0" \
 	"image=zImage\0" \
 	"fdt_file=imx6q-christ.dtb\0" \
 	"fdt_addr=0x18000000\0" \
+	"curt_file=curt.itb\0" \
+	"curt_config=1\0" \
 	"ip_dyn=yes\0" \
 	"console=" CONFIG_CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0" \
@@ -96,30 +78,60 @@
 	"run_update=0\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
+	"usbdev=0\0" \
+	"usbpart=1\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
-	EMMC_ENV	  \
 	"video_args=video=mxcfb0:dev=ldb,LDB-WXGA,if=RGB24,bpp=32\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot} " \
-		"asix_mac=${eth1addr}\0" \
+		"asix_mac=${eth1addr}; " \
+		"setenv boottype mmc; " \
+		"setenv bootdev ${mmcdev}; " \
+		"setenv bootpart ${mmcpart};\0" \
+	"curtargs=setenv bootargs console=${console},${baudrate} " \
+		"rdinit=/linuxrc enable_wait_mode=off; " \
+		"setenv boottype usb; " \
+		"setenv bootdev ${usbdev}; " \
+		"setenv bootpart ${usbpart};\0" \
 	"loadbootscript=" \
-		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+		"fatload ${boottype} ${bootdev}:${bootpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
+	"loadimage=fatload mmc ${bootdev}:${bootpart} ${loadaddr} ${image}\0" \
+	"loadfdt=fatload mmc ${bootdev}:${bootpart} ${fdt_addr} ${fdt_file}\0" \
+	"mmcboot=echo Booting from ${boottype} ...; " \
 		"run mmcargs; " \
 		"if run loadfdt; then " \
 			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"else " \
 			"echo WARN: Cannot load the DT; " \
 		"fi;\0" \
+	"loadcurt=fatload usb ${bootdev}:${bootpart} ${fdt_addr} ${curt_file};\0" \
+	"curtboot=echo Booting CURT ...; " \
+		"run curtargs; " \
+		"bootm ${fdt_addr} #config${curt_config}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if test ${last_bootcheck} -eq 0; then usb start; " \
-	"fatload usb 0:1 ${kernel_addr_r} flash_usb.img && source ${kernel_addr_r}; fi ; " \
-	"mmc dev ${mmcdev};" \
+	"setenv recovery 0; " \
+	"if test ${last_bootcheck} -eq 0; then " \
+		"setenv recovery 1; " \
+	"fi; " \
+	"if test ${run_update} -eq 1; then " \
+		"setenv recovery 1; " \
+	"fi; " \
+	"if test ${recovery} -eq 1; then " \
+		"run curtargs; " \
+		"usb start; " \
+		"if run loadbootscript; then " \
+			"run bootscript; " \
+		"else " \
+			"if run loadcurt; then " \
+				"run curtboot; " \
+			"fi; " \
+		"fi; " \
+	"fi; " \
+	"run mmcargs; " \
+	"mmc dev ${bootdev}; " \
 	"if mmc rescan; then " \
 		"if run loadbootscript; then " \
 		"run bootscript; " \
@@ -130,46 +142,6 @@
 			"fi; " \
 		"fi; " \
 	"else reset; fi"
-
-#if 0
-	"update_sd_firmware=" \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"if mmc dev ${mmcdev}; then "	\
-			"if ${get_cmd} ${update_sd_firmware_filename}; then " \
-				"setexpr fw_sz ${filesize} / 0x200; " \
-				"setexpr fw_sz ${fw_sz} + 1; "	\
-				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
-			"fi; "	\
-		"fi\0" \
-	"netargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/nfs " \
-		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
-	"netboot=echo Booting from net ...; " \
-		"run netargs; " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"${get_cmd} ${image}; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-				"bootz ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootz; " \
-		"fi;\0"
-#endif
 
 #define CONFIG_ARP_TIMEOUT     200UL
 
