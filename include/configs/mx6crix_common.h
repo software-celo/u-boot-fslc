@@ -170,7 +170,7 @@
 #define CONFIG_ENV_IS_IN_MMC
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET		(768 * 1024)
+#define CONFIG_ENV_OFFSET		(3072 * 1024)
 #endif
 
 /* Framebuffer */
