@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Christ Electronic Systems GmbH
+ * Copyright (C) 2017 Christ Electronic Systems GmbH
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  *
  * Configuration settings for the Christ crix board.
@@ -71,7 +71,7 @@
 	"curt_file=curt.itb\0" \
 	"curt_config=1\0" \
 	"ip_dyn=yes\0" \
-	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"panel=Sharp-WXGA\0" \
@@ -174,12 +174,7 @@
 #endif
 
 /* Framebuffer */
-#define CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
