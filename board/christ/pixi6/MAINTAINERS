@@ -1,0 +1,7 @@
+CRIX6 BOARD
+M:	Peter Fink <pfink@christ-es.de>
+S:	Maintained
+F:	board/christ/pixi6/
+F:	include/configs/pixi6.h
+F:	configs/pixi6dl_defconfig
+F:	configs/pixi6q_defconfig
