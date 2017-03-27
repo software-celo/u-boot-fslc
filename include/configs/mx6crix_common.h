@@ -47,6 +47,9 @@
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
 
+#define CONFIG_HASH_VERIFY
+#define CONFIG_HASH_ADD
+
 /* Command definition */
 #define CONFIG_CMD_BMODE
 
