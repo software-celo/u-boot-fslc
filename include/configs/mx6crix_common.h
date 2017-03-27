@@ -90,9 +90,10 @@
 	"fdt_addr=0x18000000\0" \
 	"ip_dyn=yes\0" \
 	"console=" CONFIG_CONSOLE_DEV "\0" \
-	"fdt_high=0xffffffff\0"	  \
+	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"panel=Sharp-WXGA\0" \
+	"run_update=0\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
@@ -116,6 +117,8 @@
 		"fi;\0" \
 
 #define CONFIG_BOOTCOMMAND \
+	"if test ${last_bootcheck} -eq 0; then usb start; " \
+	"fatload usb 0:1 ${kernel_addr_r} flash_usb.img && source ${kernel_addr_r}; fi ; " \
 	"mmc dev ${mmcdev};" \
 	"if mmc rescan; then " \
 		"if run loadbootscript; then " \
@@ -126,7 +129,7 @@
 			"else reset; " \
 			"fi; " \
 		"fi; " \
-	"else reset; fi\0"
+	"else reset; fi"
 
 #if 0
 	"update_sd_firmware=" \
