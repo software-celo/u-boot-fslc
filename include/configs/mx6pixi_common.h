@@ -74,7 +74,7 @@
 	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"panel=Sharp-WXGA\0" \
+	"panel=SGD-WVGA\0" \
 	"run_update=0\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
