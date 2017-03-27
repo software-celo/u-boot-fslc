@@ -52,8 +52,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define I2C_PAD MUX_PAD_CTRL(I2C_PAD_CTRL)
 
-//#define DISP0_PWR_EN	IMX_GPIO_NR(1, 21)
-
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
@@ -153,12 +151,6 @@ static void setup_iomux_bkl(void)
 	gpio_direction_output(IMX_GPIO_NR(1, 9) , 1); /* DISP_PWM */
 	gpio_direction_output(IMX_GPIO_NR(7, 12) , 1); /* BKL_ON */
 
-}
-
-static void enable_rgb(struct display_info_t const *dev)
-{
-	imx_iomux_v3_setup_multiple_pads(rgb_pads, ARRAY_SIZE(rgb_pads));
-//	gpio_direction_output(DISP0_PWR_EN, 1);
 }
 
 iomux_v3_cfg_t const di0_pads[] = {
@@ -286,24 +278,6 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #if defined(CONFIG_VIDEO_IPUV3)
-static void disable_lvds(struct display_info_t const *dev)
-{
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-
-	int reg = readl(&iomux->gpr[2]);
-
-	reg &= ~(IOMUXC_GPR2_LVDS_CH0_MODE_MASK |
-		 IOMUXC_GPR2_LVDS_CH1_MODE_MASK);
-
-	writel(reg, &iomux->gpr[2]);
-}
-
-static void do_enable_hdmi(struct display_info_t const *dev)
-{
-	disable_lvds(dev);
-	imx_enable_hdmi_phy();
-}
-
 struct display_info_t const displays[] = {{
 	.bus	= -1,
 	.addr	= 0,
