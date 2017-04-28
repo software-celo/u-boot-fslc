@@ -66,7 +66,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.img\0" \
 	"image=zImage\0" \
-	"fdt_file=imx6q-christ.dtb\0" \
+	"fdt_file=imx6q-crix.dtb\0" \
 	"fdt_addr=0x18000000\0" \
 	"curt_file=curt.itb\0" \
 	"curt_config=1\0" \
