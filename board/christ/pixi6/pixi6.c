@@ -74,6 +74,7 @@ static iomux_v3_cfg_t const enet_pads[] = {
 	MX6_PAD_ENET_TXD0__ENET_TX_DATA0	| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_ENET_TXD1__ENET_TX_DATA1	| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_GPIO_16__ENET_REF_CLK	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_EIM_D22__GPIO3_IO22	| MUX_PAD_CTRL(ENET_PAD_CTRL), /* reset */
 };
 
 static void setup_iomux_enet(void)
@@ -432,10 +433,14 @@ int board_eth_init(bd_t *bis)
 
 	setup_iomux_enet();
 
-	/* set GPIO_16 as ENET_REF_CLK_IN */
-	clrbits_le32(&iomux->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
+	/* set GPIO_16 as ENET_REF_CLK_OUT */
+	setbits_le32(&iomux->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
 
 	enable_fec_anatop_clock(0, ENET_50MHZ);
+
+	gpio_direction_output(IMX_GPIO_NR(3, 22) , 0); /* reset PHY */
+	udelay(25000);
+	gpio_direction_output(IMX_GPIO_NR(3, 22) , 1); /* enable PHY */
 
 	return cpu_eth_init(bis);
 }
