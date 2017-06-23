@@ -1,0 +1,7 @@
+PIXI-CXX BOARD
+M:	Peter Fink <pfink@christ-es.de>
+S:	Maintained
+F:	board/christ/pixi-cx/
+F:	include/configs/pixi-cx.h
+F:	configs/pixi-cdl100_defconfig
+F:	configs/pixi-cq100_defconfig

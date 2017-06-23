@@ -6,4 +6,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y  := pixi6.o
+obj-y  := pixi-cx.o

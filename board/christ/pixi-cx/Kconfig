@@ -1,12 +1,12 @@
-if TARGET_PIXI6
+if TARGET_PIXICX
 
 config SYS_BOARD
-	default "pixi6"
+	default "pixi-cx"
 
 config SYS_VENDOR
 	default "christ"
 
 config SYS_CONFIG_NAME
-	default "pixi6"
+	default "pixi-cx"
 
 endif
