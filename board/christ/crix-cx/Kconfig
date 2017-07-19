@@ -1,12 +1,12 @@
-if TARGET_CRIX6
+if TARGET_CRIXCX
 
 config SYS_BOARD
-	default "crix6"
+	default "crix-cx"
 
 config SYS_VENDOR
 	default "christ"
 
 config SYS_CONFIG_NAME
-	default "crix6"
+	default "crix-cx"
 
 endif

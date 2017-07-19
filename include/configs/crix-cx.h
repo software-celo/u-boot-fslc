@@ -7,8 +7,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __MX6QDLCRIX_CONFIG_H
-#define __MX6QDLCRIX_CONFIG_H
+#ifndef __MX6QDLCRIX_CX_CONFIG_H
+#define __MX6QDLCRIX_CX_CONFIG_H
 
 #ifdef CONFIG_SPL
 #include "imx6_spl.h"
@@ -22,7 +22,7 @@
 
 #define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 
-#include "mx6crix_common.h"
+#include "mx6crix-cx_common.h"
 
 /* Falcon Mode */
 #define CONFIG_CMD_SPL
@@ -71,4 +71,4 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2 /* Enabled USB controller number */
 #endif
 
-#endif                         /* __MX6QDLCRIX_CONFIG_H */
+#endif                         /* __MX6QDLCRIX_CX_CONFIG_H */

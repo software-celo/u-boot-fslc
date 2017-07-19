@@ -7,8 +7,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __MX6QDLCRIX_COMMON_CONFIG_H
-#define __MX6QDLCRIX_COMMON_CONFIG_H
+#ifndef __MX6QDLCRIX_CX_COMMON_CONFIG_H
+#define __MX6QDLCRIX_CX_COMMON_CONFIG_H
 
 #include "mx6_common.h"
 
@@ -66,7 +66,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.img\0" \
 	"image=zImage\0" \
-	"fdt_file=imx6q-crix.dtb\0" \
+	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"fdt_addr=0x18000000\0" \
 	"curt_file=curt.itb\0" \
 	"curt_config=1\0" \
@@ -204,4 +204,4 @@
 #define CONFIG_FASTBOOT_BUF_SIZE   0x07000000
 #endif
 
-#endif                         /* __MX6QDLCRIX_COMMON_CONFIG_H */
+#endif                         /* __MX6QDLCRIX_CX_COMMON_CONFIG_H */
