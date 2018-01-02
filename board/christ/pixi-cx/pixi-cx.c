@@ -16,7 +16,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/boot_mode.h>
-#include <asm/mach-imx/video.h>
+#include <asm/mach-imx/fbpanel.h>
 #include <environment.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
@@ -238,143 +238,29 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #if defined(CONFIG_VIDEO_IPUV3)
-struct display_info_t const displays[] = {{
-	.bus	= -1,
-	.addr	= 0,
-	.pixfmt	= IPU_PIX_FMT_RGB24,
-	.detect	= NULL,
-	.enable	= NULL,
-	.mode	= {
-		.name           = "Sharp-WXGA",
-		.refresh        = 60,
-		.xres           = 1280,
-		.yres           = 800,
-		.pixclock       = 14507,
-		.left_margin    = 64,
-		.right_margin   = 64,
-		.upper_margin   = 5,
-		.lower_margin   = 5,
-		.hsync_len      = 40,
-		.vsync_len      = 6,
-		.sync           = FB_SYNC_EXT,
-		.vmode          = FB_VMODE_NONINTERLACED
-} }, {
-	.bus	= -1,
-	.addr	= 0,
-	.pixfmt	= IPU_PIX_FMT_LVDS666,
-	.detect	= NULL,
-	.enable	= NULL,
-	.mode	= {
-		.name           = "SGD-WVGA",
-		.refresh        = 60,
-		.xres           = 800,
-		.yres           = 480,
-		.pixclock       = 15385,
-		.left_margin    = 104,
-		.right_margin   = 24,
-		.upper_margin   = 30,
-		.lower_margin   = 5,
-		.hsync_len      = 90,
-		.vsync_len      = 10,
-		.sync           = FB_SYNC_EXT,
-		.vmode          = FB_VMODE_NONINTERLACED
-} }, {
-	.bus	= -1,
-	.addr	= 0,
-	.pixfmt	= IPU_PIX_FMT_RGB24,
-	.detect	= NULL,
-	.enable	= NULL,
-	.mode	= {
-		.name           = "Sharp-XGA",
-		.refresh        = 60,
-		.xres           = 1024,
-		.yres           = 768,
-		.pixclock       = 15385,
-		.left_margin    = 160,
-		.right_margin   = 24,
-		.upper_margin   = 29,
-		.lower_margin   = 3,
-		.hsync_len      = 136,
-		.vsync_len      = 6,
-		.sync           = FB_SYNC_EXT,
-		.vmode          = FB_VMODE_NONINTERLACED
-} }, {
-	.bus	= -1,
-	.addr	= 0,
-	.pixfmt	= IPU_PIX_FMT_RGB24,
-	.detect	= NULL,
-	.enable	= NULL,
-	.mode	= {
-		.name           = "Sharp-FullHD",
-		.refresh        = 60,
-		.xres           = 1920,
-		.yres           = 1080,
-		.pixclock       = 7851,
-		.left_margin    = 100,
-		.right_margin   = 40,
-		.upper_margin   = 30,
-		.lower_margin   = 3,
-		.hsync_len      = 10,
-		.vsync_len      = 2,
-		.sync           = FB_SYNC_EXT,
-		.vmode          = FB_VMODE_NONINTERLACED
-} } };
-size_t display_count = ARRAY_SIZE(displays);
+static const struct display_info_t displays[] = {
 
-static void setup_display(void)
-{
-	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	int reg;
+	/* LVDS */
+	VD_C_WVGA(LVDS, NULL, 0, 0x00),
+	VD_C_SVGA(LVDS, NULL, 0, 0x00),
+	VD_C_XGA(LVDS, NULL, 0, 0x00),
+	VD_C_XGA_INNOLUX(LVDS, NULL, 0, 0x00),
+	VD_C_WXGA(LVDS, NULL, 0, 0x00),
+	VD_C_SXGA(LVDS, NULL, 0, 0x00),
+	VD_C_FWXGA(LVDS, NULL, 0, 0x00),
+	VD_C_FULLHD(LVDS, NULL, 0, 0x00),
 
-	/* Setup HSYNC, VSYNC, DISP_CLK for debugging purposes */
-	SETUP_IOMUX_PADS(di0_pads);
+	/* LVDS 2 */
+	VD_C_WVGA(LVDS2, NULL, 0, 0x00),
+	VD_C_SVGA(LVDS2, NULL, 0, 0x00),
+	VD_C_XGA(LVDS2, NULL, 0, 0x00),
+	VD_C_XGA_INNOLUX(LVDS2, NULL, 0, 0x00),
+	VD_C_WXGA(LVDS2, NULL, 0, 0x00),
+	VD_C_SXGA(LVDS2, NULL, 0, 0x00),
+	VD_C_FWXGA(LVDS2, NULL, 0, 0x00),
+	VD_C_FULLHD(LVDS2, NULL, 0, 0x00),
+};
 
-	enable_ipu_clock();
-	imx_setup_hdmi();
-
-	/* Turn on LDB0, LDB1, IPU,IPU DI0 clocks */
-	reg = readl(&mxc_ccm->CCGR3);
-	reg |=  MXC_CCM_CCGR3_LDB_DI0_MASK | MXC_CCM_CCGR3_LDB_DI1_MASK;
-	writel(reg, &mxc_ccm->CCGR3);
-
-	/* set LDB0, LDB1 clk select to 011/011 */
-	reg = readl(&mxc_ccm->cs2cdr);
-	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK
-		 | MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
-	reg |= (3 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET)
-	      | (3 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET);
-	writel(reg, &mxc_ccm->cs2cdr);
-
-	reg = readl(&mxc_ccm->cscmr2);
-	reg |= MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV | MXC_CCM_CSCMR2_LDB_DI1_IPU_DIV;
-	writel(reg, &mxc_ccm->cscmr2);
-
-	reg = readl(&mxc_ccm->chsccdr);
-	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
-		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
-	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
-		<< MXC_CCM_CHSCCDR_IPU1_DI1_CLK_SEL_OFFSET);
-	writel(reg, &mxc_ccm->chsccdr);
-
-	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
-	     | IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_LOW
-	     | IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW
-	     | IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG
-	     | IOMUXC_GPR2_DATA_WIDTH_CH1_24BIT
-	     | IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG
-	     | IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT
-	     | IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED
-	     | IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0;
-	writel(reg, &iomux->gpr[2]);
-
-	reg = readl(&iomux->gpr[3]);
-	reg = (reg & ~(IOMUXC_GPR3_LVDS1_MUX_CTL_MASK
-			| IOMUXC_GPR3_HDMI_MUX_CTL_MASK))
-	    | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
-	       << IOMUXC_GPR3_LVDS1_MUX_CTL_OFFSET);
-	writel(reg, &iomux->gpr[3]);
-}
 #endif /* CONFIG_VIDEO_IPUV3 */
 
 /*
@@ -468,7 +354,6 @@ int board_ehci_power(int port, int on)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
-
 	return 0;
 }
 
@@ -477,8 +362,10 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-#if defined(CONFIG_VIDEO_IPUV3)
-	setup_display();
+#ifdef CONFIG_CMD_FBPANEL
+	fbp_setup_display(displays, ARRAY_SIZE(displays));
+#endif
+#ifdef CONFIG_VIDEO_IPUV3
 	setup_iomux_bkl();
 #endif
 #ifdef CONFIG_USB_EHCI_MX6
