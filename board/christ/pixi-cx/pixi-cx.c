@@ -393,14 +393,35 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	env_set("board_name", "PIXI-Cxx");
+	char *cpu;
+	char fdt_file[32];
+	unsigned long ddr_size = imx_ddr_size();
+	int ddr_model = 0;
+	char board[10] = {0,};
 
-	if (is_mx6dqp())
-		env_set("board_rev", "MX6QP");
-	else if (is_mx6dq())
-		env_set("board_rev", "MX6Q");
-	else if (is_mx6sdl())
-		env_set("board_rev", "MX6DL");
+	if (is_cpu_type(MXC_CPU_MX6Q))
+		cpu = "q";
+	else if (is_cpu_type(MXC_CPU_MX6DL))
+		cpu = "dl";
+	else
+		cpu = "x";
+
+	env_set_hex("ddr_size", ddr_size);
+
+	if (ddr_size == 0xEFFFFC00)
+		ddr_model = 4;
+	else
+		ddr_model = (int) (ddr_size >> 30);
+
+	sprintf(board, "pixi-c%s%1x00", cpu, ddr_model);
+
+	printf("Board: %s\n", board);
+	env_set("board_name", board);
+
+	if (env_get_yesno("fdt_file") == -1){
+		sprintf(fdt_file, "imx6%s-pixi-c%sx00.dtb", cpu, cpu);
+		env_set("fdt_file", fdt_file);
+	}
 #endif
 
 	/* christ: reset bootcheck to 0 if set to 1 and set last_bootcheck accordingly */
@@ -421,7 +442,6 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: MX6-PICO\n");
 	return 0;
 }
 
