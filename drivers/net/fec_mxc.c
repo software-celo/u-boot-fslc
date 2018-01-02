@@ -1032,6 +1032,7 @@ static int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
 	struct eth_device *edev;
 	struct fec_priv *fec;
 	unsigned char ethaddr[6];
+	unsigned char eth1addr[6];
 	char mac[16];
 	uint32_t start;
 	int ret = 0;
@@ -1107,6 +1108,23 @@ static int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
 			strcpy(mac, "ethaddr");
 		if (!env_get(mac))
 			eth_env_set_enetaddr(mac, ethaddr);
+	}
+
+	if (eth_env_get_enetaddr("ethaddr", ethaddr)) {
+
+		if (!eth_env_get_enetaddr("eth1addr", eth1addr)) {
+			/*
+			 * Secondary MAC address is primary MAC address + 1
+			 */
+			memcpy(eth1addr, ethaddr, 6);
+			eth1addr[5] += 0x01;
+			if (eth1addr[5] == 0x00){
+				eth1addr[4] += 0x01;
+				if (eth1addr[4] == 0x00)
+					eth1addr[3] += 0x01;
+			}
+			eth_env_set_enetaddr("eth1addr", eth1addr);
+		}
 	}
 	return ret;
 err4:
