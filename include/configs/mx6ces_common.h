@@ -48,7 +48,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.img\0" \
 	"image=zImage\0" \
-	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"fdt_addr=0x18000000\0" \
 	"curt_file=curt.itb\0" \
 	"curt_config=1\0" \
@@ -56,14 +55,17 @@
 	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"panel=SGD-WVGA\0" \
+	"ddr_addr=0x10000000\0" \
 	"run_update=0\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
 	"usbdev=0\0" \
 	"usbpart=1\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
-	"video_args=video=mxcfb0:dev=ldb,LDB-WXGA,if=RGB24,bpp=32\0" \
+	"fb_hdmi=off\0" \
+	"fb_lcd=off\0" \
+	"fb_lvds2=off\0" \
+	"fb_lvds=*c-wvga\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot} " \
 		"asix_mac=${eth1addr}; " \
@@ -80,16 +82,22 @@
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
 	"loadimage=fatload mmc ${bootdev}:${bootpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${bootdev}:${bootpart} ${fdt_addr} ${fdt_file}\0" \
+	"loadfdt=fatload mmc ${bootdev}:${bootpart} ${fdt_addr} ${fdt_file} && fdt addr ${fdt_addr}\0" \
+	"updatefdt=fdt addr ${fdt_addr} && fdt memory ${ddr_addr} ${ddr_size}\0" \
+	"setdisplay=run cmd_lvds ;run cmd_hdmi; run cmd_lcd\0" \
 	"mmcboot=echo Booting from ${boottype} ...; " \
 		"run mmcargs; " \
 		"if run loadfdt; then " \
+			"run updatefdt; " \
+			"run setdisplay; " \
 			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"else " \
 			"echo WARN: Cannot load the DT; " \
 		"fi;\0" \
 	"loadcurt=fatload usb ${bootdev}:${bootpart} ${fdt_addr} ${curt_file};\0" \
 	"curtboot=echo Booting CURT ...; " \
+		"run updatefdt; " \
+		"run setdisplay; " \
 		"run curtargs; " \
 		"bootm ${fdt_addr} #config${curt_config}\0" \
 
@@ -151,6 +159,9 @@
 #define CONFIG_ENV_OFFSET		(3072 * 1024)
 #endif
 
+#define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
+#define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
+
 /* Framebuffer */
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_BMP_RLE8
@@ -161,7 +172,7 @@
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_HIDE_LOGO_VERSION
 #define CONFIG_IMX_HDMI
-#define CONFIG_IMX_VIDEO_SKIP
+#define CONFIG_CMD_FBPANEL
 
 #define CONFIG_FAT_WRITE
 
