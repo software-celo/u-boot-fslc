@@ -104,6 +104,14 @@ void fbp_setup_display(const struct display_info_t *displays, int cnt);
 #define VD_A030JN01_UPS051(_mode, _detect, _bus, _addr)	VDF_A030JN01_UPS051(_mode, "A030JN01_UPS051", UPS051, FBF_MODESTR | FBF_SPI, _detect, _bus, _addr)
 #define VD_A030JN01_YUV720(_mode, _detect, _bus, _addr) VDF_A030JN01_YUV720(_mode, "A030JN01_YUV720", YUYV, FBF_MODESTR | FBF_SPI, _detect, _bus, _addr)
 #define VD_KD024FM(_mode, _detect, _bus, _addr)		VDF_KD024FM(_mode, "KD024FM", RGB666, FBF_MODESTR, _detect, _bus, _addr)
+#define VD_C_WVGA(_mode, _detect, _bus, _addr)		VDF_C_WVGA(_mode, "c-wvga", RGB666, 0, _detect, _bus, _addr)
+#define VD_C_SVGA(_mode, _detect, _bus, _addr)		VDF_C_SVGA(_mode, "c-svga", RGB666, 0, _detect, _bus, _addr)
+#define VD_C_XGA(_mode, _detect, _bus, _addr)		VDF_C_XGA(_mode, "c-xga", RGB24, 0, _detect, _bus, _addr)
+#define VD_C_XGA_INNOLUX(_mode, _detect, _bus, _addr)	VDF_C_XGA_INNOLUX(_mode, "c-xga-innolux", RGB666, 0, _detect, _bus, _addr)
+#define VD_C_WXGA(_mode, _detect, _bus, _addr)		VDF_C_WXGA(_mode, "c-wxga", RGB24, 0, _detect, _bus, _addr)
+#define VD_C_SXGA(_mode, _detect, _bus, _addr)		VDF_C_SXGA(_mode, "c-sxga", RGB24, 0, _detect, _bus, _addr)
+#define VD_C_FWXGA(_mode, _detect, _bus, _addr)		VDF_C_FWXGA(_mode, "c-fwxga", RGB24, 0, _detect, _bus, _addr)
+#define VD_C_FULLHD(_mode, _detect, _bus, _addr)	VDF_C_FULLHD(_mode, "c-fullhd", RGB24, FBF_SPLITMODE, _detect, _bus, _addr)
 
 #define VD_HEADER(_mode, _fmt, _flags, _detect, _bus, _addr) \
 	.bus	= _bus,\
@@ -1141,6 +1149,184 @@ void fbp_setup_display(const struct display_info_t *displays, int cnt);
 		.lower_margin   = 8,\
 		.hsync_len      = 10,\
 		.vsync_len      = 4,\
+		.sync           = FB_SYNC_EXT,\
+		.vmode          = FB_VMODE_NONINTERLACED\
+	}\
+}
+
+/* E225596 Rev0 7" 800x480 WVGA */
+/* E225620 Rev0 7" 800x480 WVGA */
+/* E225622 Rev0 7" 800x480 WVGA */
+#define VDF_C_WVGA(_mode, _name, _fmt, _flags, _detect, _bus, _addr) \
+{\
+	VD_HEADER(_mode, _fmt, _flags, _detect, _bus, _addr),\
+	.mode	= {\
+		.name           = _name,\
+		.refresh        = 1000000000000ULL/((800+96+24+72)*(480+3+10+7)*33898ULL), /* 59.476 Hz */ \
+		.xres           = 800,\
+		.yres           = 480,\
+		.pixclock       = 33898, /* in ps 10⁻12 = 29.500 Mhz */ \
+		.left_margin    = 24,\
+		.right_margin   = 96,\
+		.upper_margin   = 10,\
+		.lower_margin   = 3,\
+		.hsync_len      = 72,\
+		.vsync_len      = 7,\
+		.sync           = FB_SYNC_EXT,\
+		.vmode          = FB_VMODE_NONINTERLACED\
+	}\
+}
+
+/* E225547 Rev0 10.4" 800x600 SVGA */
+#define VDF_C_SVGA(_mode, _name, _fmt, _flags, _detect, _bus, _addr) \
+{\
+	VD_HEADER(_mode, _fmt, _flags, _detect, _bus, _addr),\
+	.mode	= {\
+		.name           = _name,\
+		.refresh        = 1000000000000ULL/((800+40+88+128)*(600+1+23+4)*25000ULL), /* 60.31 Hz */ \
+		.xres           = 800,\
+		.yres           = 600,\
+		.pixclock       = 25000, /* in ps 10⁻12 = 40.000 Mhz */ \
+		.left_margin    = 40,\
+		.right_margin   = 88,\
+		.upper_margin   = 1,\
+		.lower_margin   = 23,\
+		.hsync_len      = 128,\
+		.vsync_len      = 4,\
+		.sync           = FB_SYNC_EXT,\
+		.vmode          = FB_VMODE_NONINTERLACED\
+	}\
+}
+
+/* E225551 Rev0 10.4" 1024x768 XGA */
+/* E225625 Rev0 15.0" 1024x768 XGA */
+#define VDF_C_XGA(_mode, _name, _fmt, _flags, _detect, _bus, _addr) \
+{\
+	VD_HEADER(_mode, _fmt, _flags, _detect, _bus, _addr),\
+	.mode	= {\
+		.name           = _name,\
+		.refresh        = 1000000000000ULL/((1024+40+220+60)*(768+7+21+10)*15384ULL), /* 60.00 Hz */ \
+		.xres           = 1024,\
+		.yres           = 768,\
+		.pixclock       = 15384, /* in ps 10⁻12 = 65.000 Mhz */ \
+		.left_margin    = 220,\
+		.right_margin   = 40,\
+		.upper_margin   = 21,\
+		.lower_margin   = 7,\
+		.hsync_len      = 60,\
+		.vsync_len      = 10,\
+		.sync           = FB_SYNC_EXT,\
+		.vmode          = FB_VMODE_NONINTERLACED\
+	}\
+}
+
+/* E225637 Rev0 12.1" 1024x768 XGA */
+#define VDF_C_XGA_INNOLUX(_mode, _name, _fmt, _flags, _detect, _bus, _addr) \
+{\
+	VD_HEADER(_mode, _fmt, _flags, _detect, _bus, _addr),\
+	.mode	= {\
+		.name           = _name,\
+		.refresh        = 1000000000000ULL/((1024+152+48+104)*(768+48+3+4)*15748ULL), /* 58.10 Hz */ \
+		.xres           = 1024,\
+		.yres           = 768,\
+		.pixclock       = 15748, /* in ps 10⁻12 = 63.500 Mhz */ \
+		.left_margin    = 152,\
+		.right_margin   = 48,\
+		.upper_margin   = 48,\
+		.lower_margin   = 3,\
+		.hsync_len      = 104,\
+		.vsync_len      = 4,\
+		.sync           = FB_SYNC_EXT,\
+		.vmode          = FB_VMODE_NONINTERLACED\
+	}\
+}
+
+/* E225501 Rev0 10.1" 1280x800 WXGA */
+/* E225503 Rev0 10.1" 1280x800 WXGA */
+/* E225560 Rev0 12.1" 1280x800 WXGA */
+/* E225597 Rev0 12.1" 1280x800 WXGA */
+#define VDF_C_WXGA(_mode, _name, _fmt, _flags, _detect, _bus, _addr) \
+{\
+	VD_HEADER(_mode, _fmt, _flags, _detect, _bus, _addr),\
+	.mode	= {\
+		.name           = _name,\
+		.refresh        = 1000000000000ULL/((1280+64+64+40)*(800+5+5+6)*14507ULL), /* 58.34 Hz */ \
+		.xres           = 1280,\
+		.yres           = 800,\
+		.pixclock       = 14507, /* in ps 10⁻12 = 68.930 Mhz */ \
+		.left_margin    = 64,\
+		.right_margin   = 64,\
+		.upper_margin   = 5,\
+		.lower_margin   = 5,\
+		.hsync_len      = 40,\
+		.vsync_len      = 6,\
+		.sync           = FB_SYNC_EXT,\
+		.vmode          = FB_VMODE_NONINTERLACED\
+	}\
+}
+
+/* E225598 Rev0 17.0" 1280x1024 SXGA */
+#define VDF_C_SXGA(_mode, _name, _fmt, _flags, _detect, _bus, _addr) \
+{\
+	VD_HEADER(_mode, _fmt, _flags, _detect, _bus, _addr),\
+	.mode	= {\
+		.name           = _name,\
+		.refresh        = 1000000000000ULL/((1280+50+50+10)*(1024+100+20+15)*18518ULL), /* 33.52 Hz */ \
+		.xres           = 1280,\
+		.yres           = 1024,\
+		.pixclock       = 18518, /* in ps 10⁻12 = 54.001 Mhz */ \
+		.left_margin    = 50,\
+		.right_margin   = 50,\
+		.upper_margin   = 100,\
+		.lower_margin   = 20,\
+		.hsync_len      = 10,\
+		.vsync_len      = 15,\
+		.sync           = FB_SYNC_EXT,\
+		.vmode          = FB_VMODE_NONINTERLACED\
+	}\
+}
+
+/* E225623 Rev0 15.6" 1366x768 FWXGA */
+/* E225631 Rev0 18.5" 1366x768 FWXGA */
+#define VDF_C_FWXGA(_mode, _name, _fmt, _flags, _detect, _bus, _addr) \
+{\
+	VD_HEADER(_mode, _fmt, _flags, _detect, _bus, _addr),\
+	.mode	= {\
+		.name           = _name,\
+		.refresh        = 1000000000000ULL/((1366+72+216+144)*(768+1+23+3)*13157ULL), /* 53.17 Hz */ \
+		.xres           = 1366,\
+		.yres           = 768,\
+		.pixclock       = 13157, /* in ps 10⁻12 = 76.005 Mhz */ \
+		.left_margin    = 72,\
+		.right_margin   = 216,\
+		.upper_margin   = 1,\
+		.lower_margin   = 23,\
+		.hsync_len      = 144,\
+		.vsync_len      = 3,\
+		.sync           = FB_SYNC_EXT,\
+		.vmode          = FB_VMODE_NONINTERLACED\
+	}\
+}
+
+/* E225633 Rev0 15.6" 1920x1080 Full HD */
+/* E225634 Rev0 18.5" 1920x1080 Full HD */
+/* E225626 Rev0 21.5" 1920x1080 Full HD */
+/* E225630 Rev0 23.8" 1920x1080 Full HD */
+#define VDF_C_FULLHD(_mode, _name, _fmt, _flags, _detect, _bus, _addr) \
+{\
+	VD_HEADER(_mode, _fmt, _flags, _detect, _bus, _addr),\
+	.mode	= {\
+		.name           = _name,\
+		.refresh        = 1000000000000ULL/((1920+80+48+32)*(1080+23+3+5)*7220ULL), /* 59.93 Hz */ \
+		.xres           = 1920,\
+		.yres           = 1080,\
+		.pixclock       = 7220, /* in ps 10⁻12 = 138.504 Mhz */ \
+		.left_margin    = 80,\
+		.right_margin   = 48,\
+		.upper_margin   = 23,\
+		.lower_margin   = 3,\
+		.hsync_len      = 32,\
+		.vsync_len      = 5,\
 		.sync           = FB_SYNC_EXT,\
 		.vmode          = FB_VMODE_NONINTERLACED\
 	}\
