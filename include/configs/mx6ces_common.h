@@ -50,7 +50,7 @@
 	"image=zImage\0" \
 	"fdt_addr=0x18000000\0" \
 	"curt_file=curt.itb\0" \
-	"curt_config=1\0" \
+	"curt_addr=0x20000000\0" \
 	"ip_dyn=yes\0" \
 	"console=" CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0" \
@@ -62,29 +62,25 @@
 	"usbdev=0\0" \
 	"usbpart=1\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
-	"fb_hdmi=off\0" \
-	"fb_lcd=off\0" \
-	"fb_lvds2=off\0" \
-	"fb_lvds=*c-wvga\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot} " \
 		"asix_mac=${eth1addr}; " \
 		"setenv boottype mmc; " \
 		"setenv bootdev ${mmcdev}; " \
-		"setenv bootpart ${mmcpart};\0" \
+		"setenv bootpart ${mmcpart}\0" \
 	"curtargs=setenv bootargs console=${console},${baudrate} " \
 		"rdinit=/linuxrc enable_wait_mode=off; " \
 		"setenv boottype usb; " \
 		"setenv bootdev ${usbdev}; " \
-		"setenv bootpart ${usbpart};\0" \
+		"setenv bootpart ${usbpart}\0" \
 	"loadbootscript=" \
-		"fatload ${boottype} ${bootdev}:${bootpart} ${loadaddr} ${script};\0" \
+		"fatload ${boottype} ${bootdev}:${bootpart} ${loadaddr} ${script}\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
 	"loadimage=fatload mmc ${bootdev}:${bootpart} ${loadaddr} ${image}\0" \
 	"loadfdt=fatload mmc ${bootdev}:${bootpart} ${fdt_addr} ${fdt_file} && fdt addr ${fdt_addr}\0" \
-	"updatefdt=fdt addr ${fdt_addr} && fdt memory ${ddr_addr} ${ddr_size}\0" \
-	"setdisplay=run cmd_lvds ;run cmd_hdmi; run cmd_lcd\0" \
+	"updatefdt=fdt addr ${fdt_addr} && fdt resize 100 && fdt memory ${ddr_addr} ${ddr_size}\0" \
+	"setdisplay=run cmd_lvds; run cmd_hdmi; run cmd_lcd\0" \
 	"mmcboot=echo Booting from ${boottype} ...; " \
 		"run mmcargs; " \
 		"if run loadfdt; then " \
@@ -93,13 +89,17 @@
 			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"else " \
 			"echo WARN: Cannot load the DT; " \
-		"fi;\0" \
-	"loadcurt=fatload usb ${bootdev}:${bootpart} ${fdt_addr} ${curt_file};\0" \
+		"fi\0" \
+	"loadcurt=fatload usb ${bootdev}:${bootpart} ${curt_addr} ${curt_file}\0" \
 	"curtboot=echo Booting CURT ...; " \
+		"bootm start ${curt_addr}#config@${curt_config}; " \
+		"bootm loados; " \
+		"bootm ramdisk; " \
+		"bootm fdt; " \
 		"run updatefdt; " \
 		"run setdisplay; " \
-		"run curtargs; " \
-		"bootm ${fdt_addr} #config${curt_config}\0" \
+		"bootm prep; " \
+		"bootm go\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"setenv recovery 0; " \
@@ -161,6 +161,17 @@
 
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
+
+/* I2C & EEPROM Configs */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x52
+#define EEPROM_ADDR_ENUM		0x18
+#define EEPROM_ADDR_REV			0x22
+#define EEPROM_ADDR_SERIAL		0x2C
+#define EEPROM_ADDR_RES			0x298
+#define EEPROM_ADDR_END			0x338
 
 /* Framebuffer */
 #define CONFIG_VIDEO_IPUV3
