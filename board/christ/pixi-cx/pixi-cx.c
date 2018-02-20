@@ -12,6 +12,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
 #include <linux/errno.h>
+#include <linux/ctype.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -63,6 +64,33 @@ static iomux_v3_cfg_t const uart1_pads[] = {
 	IOMUX_PADS(PAD_CSI0_DAT11__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 };
 
+/* I2C1, EEPROM, RTC */
+static struct i2c_pads_info mx6dl_i2c_pad_info0 = {
+	.scl = {
+		.i2c_mode = MX6DL_PAD_CSI0_DAT9__I2C1_SCL | I2C_PAD,
+		.gpio_mode = MX6DL_PAD_CSI0_DAT9__GPIO5_IO27 | I2C_PAD,
+		.gp = IMX_GPIO_NR(5, 27)
+	},
+	.sda = {
+		.i2c_mode = MX6DL_PAD_CSI0_DAT8__I2C1_SDA | I2C_PAD,
+		.gpio_mode = MX6DL_PAD_CSI0_DAT8__GPIO5_IO26 | I2C_PAD,
+		.gp = IMX_GPIO_NR(5, 26)
+	}
+};
+
+static struct i2c_pads_info mx6q_i2c_pad_info0 = {
+	.scl = {
+		.i2c_mode = MX6Q_PAD_CSI0_DAT9__I2C1_SCL | I2C_PAD,
+		.gpio_mode = MX6Q_PAD_CSI0_DAT9__GPIO5_IO27 | I2C_PAD,
+		.gp = IMX_GPIO_NR(5, 27)
+	},
+	.sda = {
+		.i2c_mode = MX6Q_PAD_CSI0_DAT8__I2C1_SDA | I2C_PAD,
+		.gpio_mode = MX6Q_PAD_CSI0_DAT8__GPIO5_IO26 | I2C_PAD,
+		.gp = IMX_GPIO_NR(5, 26)
+	}
+};
+
 static iomux_v3_cfg_t const enet_pads[] = {
 	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC	| MUX_PAD_CTRL(ENET_PAD_CTRL)),
@@ -86,11 +114,12 @@ static void setup_iomux_enet(void)
 static iomux_v3_cfg_t const usdhc2_pads[] = {
 	IOMUX_PADS(PAD_SD2_CLK__SD2_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD2_CMD__SD2_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD2_DAT0__SD2_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD2_DAT1__SD2_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD2_DAT2__SD2_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD2_DAT3__SD2_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_NANDF_D2__GPIO2_IO02	| MUX_PAD_CTRL(NO_PAD_CTRL)), /* CD */
+	IOMUX_PADS(PAD_SD2_DAT0__SD2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT1__SD2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT2__SD2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD2_DAT3__SD2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	/* CD */
+	IOMUX_PADS(PAD_NANDF_D2__GPIO2_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const usdhc4_pads[] = {
@@ -147,7 +176,7 @@ int board_mmc_get_env_dev(int devno)
 	case 3: return 1;
 		break;
 	default:
-		        printf("Warning: searching for illegal mmc device number.\n");
+		printf("Warning: illegal mmc device number.\n");
 	}
 	return -EINVAL;
 }
@@ -362,6 +391,11 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
+	if (is_mx6dq() || is_mx6dqp())
+		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info0);
+	else
+		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info0);
+
 #ifdef CONFIG_CMD_FBPANEL
 	fbp_setup_display(displays, ARRAY_SIZE(displays));
 #endif
@@ -386,6 +420,68 @@ static const struct boot_mode board_boot_modes[] = {
 };
 #endif
 
+struct eeprom_device_info {
+	char e_num[10];
+	char rev[10];
+	char serial[20];
+	char eeprom_env[160];
+};
+
+
+/* code taken from lib/hashtable.c [himport_r] */
+int insert_env_from_string(char * input, int size)
+{
+	char sep = ';';
+	char *sp, *dp, *name, *value;
+	int envset = 0;
+
+	dp = input;
+
+	/* Parse environment; allow for '\0' and 'sep' as separators */
+	do {
+		/* skip leading white space and non-printable chars */
+		while ((isblank(*dp) || !isprint(*dp)) && (dp < input + size))
+			++dp;
+
+		if (dp >= input + size)
+			break;
+
+		/* parse name */
+		for (name = dp; *dp != '=' && *dp && *dp != sep; ++dp)
+			;
+
+		/* deal with "name" and "name=" entries
+				without values and ignore them */
+		if (*dp == '\0' || *(dp + 1) == '\0' ||
+		    *dp == sep || *(dp + 1) == sep) {
+			if (*dp == '=')
+				*dp++ = '\0';
+			*dp++ = '\0';   /* terminate name */
+			continue;
+		}
+		*dp++ = '\0';   /* terminate name */
+
+		/* parse value; escapes are not allowed here */
+		for (value = sp = dp; *dp && (*dp != sep); ++dp)
+			*sp++ = *dp;
+		*sp++ = '\0';   /* terminate value */
+		++dp;
+
+		if (*name == 0) {
+			debug("INSERT: unable to use an empty key\n");
+			continue;
+		}
+
+		if (env_get_yesno(name) == -1){
+			env_set(name, value);
+			envset = 1;
+		}
+
+	} while ((dp < input + size) && *dp);  /* size check needed for text */
+					       /* without '\0' termination */
+	return envset;
+}
+
 int board_late_init(void)
 {
 #ifdef CONFIG_CMD_BMODE
@@ -395,9 +491,12 @@ int board_late_init(void)
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	char *cpu;
 	char fdt_file[32];
+	char curt_config[32];
 	unsigned long ddr_size = imx_ddr_size();
 	int ddr_model = 0;
 	char board[10] = {0,};
+
+	struct eeprom_device_info eedi;
 
 	if (is_cpu_type(MXC_CPU_MX6Q))
 		cpu = "q";
@@ -422,6 +521,69 @@ int board_late_init(void)
 		sprintf(fdt_file, "imx6%s-pixi-c%sx00.dtb", cpu, cpu);
 		env_set("fdt_file", fdt_file);
 	}
+	if (env_get_yesno("curt_config") == -1){
+		sprintf(curt_config, "pixi-c%sx00", cpu);
+		env_set("curt_config", curt_config);
+	}
+
+	/* get board info from eeprom */
+
+	if(i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, EEPROM_ADDR_ENUM, 2,
+			(uint8_t *)&eedi,
+			sizeof(eedi) - sizeof(eedi.eeprom_env))){
+
+		printf("EEPROM: Error! [E_ACCESS]\n");
+
+		if (env_get_yesno("fb_hdmi") == -1 ||
+				env_get_yesno("fb_lcd") == -1 ||
+				env_get_yesno("fb_lvds") == -1 ||
+				env_get_yesno("fb_lvds2") == -1){
+			env_set("fb_hdmi", "off");
+			env_set("fb_lcd", "off");
+			env_set("fb_lvds", "*c-wvga");
+			env_set("fb_lvds2", "off");
+		}
+	}
+	else {
+		printf("Device Identifier: ");
+		for (int i=0; i < strlen(&eedi.e_num[0]) &&
+					isprint(toascii(eedi.e_num[i])); i++)
+			putc(toascii(eedi.e_num[i]));
+		printf("\nDevice Revision: ");
+		for (int i=0; i < strlen(&eedi.rev[0]) &&
+					isprint(toascii(eedi.rev[i])); i++)
+			putc(toascii(eedi.rev[i]));
+		printf("\nDevice Serial No: ");
+		for (int i=0; i < strlen(&eedi.serial[0]) &&
+					isprint(toascii(eedi.serial[i])); i++)
+			putc(toascii(eedi.serial[i]));
+		putc('\n');
+	}
+
+	if(i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, EEPROM_ADDR_RES,
+			2, (uint8_t *)&eedi.eeprom_env,
+			sizeof(eedi.eeprom_env))){
+
+		printf("EEPROM: Error! [E_ACCESS]\n");
+
+		if (env_get_yesno("fb_hdmi") == -1 ||
+				env_get_yesno("fb_lcd") == -1 ||
+				env_get_yesno("fb_lvds") == -1 ||
+				env_get_yesno("fb_lvds2") == -1){
+			env_set("fb_hdmi", "off");
+			env_set("fb_lcd", "off");
+			env_set("fb_lvds", "*c-wvga");
+			env_set("fb_lvds2", "off");
+		}
+	}
+	else {
+		if (insert_env_from_string(eedi.eeprom_env,
+					sizeof(eedi.eeprom_env))){
+			printf("Updating ENV from EEPROM: %s\n",
+							eedi.eeprom_env);
+		}
+	}
+
 #endif
 
 	/* christ: reset bootcheck to 0 if set to 1 and set last_bootcheck accordingly */
