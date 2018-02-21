@@ -1,0 +1,7 @@
+BLIX-BXX BOARD
+M:	Peter Fink <pfink@christ-es.de>
+S:	Maintained
+F:	board/christ/blix-bx/
+F:	include/configs/blix-bx.h
+F:	configs/blix-bdl100_defconfig
+F:	configs/blix-bq100_defconfig
