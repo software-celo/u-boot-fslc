@@ -1,0 +1,12 @@
+if TARGET_CRIXCX
+
+config SYS_BOARD
+	default "crix-cx"
+
+config SYS_VENDOR
+	default "christ"
+
+config SYS_CONFIG_NAME
+	default "crix-cx"
+
+endif

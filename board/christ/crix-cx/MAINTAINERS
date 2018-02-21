@@ -1,0 +1,7 @@
+CRIX-CXX BOARD
+M:	Peter Fink <pfink@christ-es.de>
+S:	Maintained
+F:	board/christ/crix-cx/
+F:	include/configs/crix-cx.h
+F:	configs/crix-cdl100_defconfig
+F:	configs/crix-cq100_defconfig
