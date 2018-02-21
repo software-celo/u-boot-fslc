@@ -4,3 +4,6 @@ S:	Maintained
 F:	board/christ/pixi-cx/
 F:	include/configs/pixi-cx.h
 F:	configs/pixi-cdl100_defconfig
+F:	configs/pixi-cq100_defconfig
+F:	configs/pixi-cdl200_defconfig
+F:	configs/pixi-cq200_defconfig
