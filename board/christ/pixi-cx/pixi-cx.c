@@ -51,6 +51,10 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
 	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
 
+#define PWM_PAD_CTRL (PAD_CTL_PUS_100K_DOWN |			\
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)	\
+
+
 #define I2C_PAD MUX_PAD_CTRL(I2C_PAD_CTRL)
 
 int dram_init(void)
@@ -150,6 +154,20 @@ static void setup_iomux_bkl(void)
 	/* Set DISP_PWM and BKL_ON to HIGH */
 	gpio_direction_output(IMX_GPIO_NR(1, 9) , 1); /* DISP_PWM */
 	gpio_direction_output(IMX_GPIO_NR(7, 12) , 1); /* BKL_ON */
+}
+
+static iomux_v3_cfg_t const pwm4_pads[] = {
+	IOMUX_PADS(PAD_SD1_CMD__GPIO1_IO18	| MUX_PAD_CTRL(PWM_PAD_CTRL)),
+};
+
+static void setup_iomux_pwm4(void)
+{
+	SETUP_IOMUX_PADS(pwm4_pads);
+
+	/* set pwm4 simply to low as it's function is not used here
+	 * but avoid the default pull-up
+	 */
+	gpio_direction_output(IMX_GPIO_NR(1, 18), 0); /* PWM4 */
 }
 
 static void setup_iomux_uart(void)
@@ -383,6 +401,7 @@ int board_ehci_power(int port, int on)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
+	setup_iomux_pwm4();
 	return 0;
 }
 
