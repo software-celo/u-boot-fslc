@@ -514,6 +514,7 @@ int board_late_init(void)
 	unsigned long ddr_size = imx_ddr_size();
 	int ddr_model = 0;
 	char board[10] = {0,};
+	char env_cpy[161];
 
 	struct eeprom_device_info eedi;
 
@@ -596,10 +597,11 @@ int board_late_init(void)
 		}
 	}
 	else {
+		memcpy(env_cpy, eedi.eeprom_env, 160);
+		env_cpy[160] = '\0';
 		if (insert_env_from_string(eedi.eeprom_env,
 					sizeof(eedi.eeprom_env))){
-			printf("Updating ENV from EEPROM: %s\n",
-							eedi.eeprom_env);
+			printf("Updating ENV from EEPROM: %s\n", env_cpy);
 		}
 	}
 
