@@ -56,6 +56,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO_PD_PAD_CTRL (PAD_CTL_PUS_100K_DOWN |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
+#define GPIO_PU_PAD_CTRL (PAD_CTL_PUS_100K_UP |			\
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
+
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
@@ -179,6 +182,16 @@ void board_enable_lvds(const struct display_info_t *di, int enable)
 		gpio_direction_output(IMX_GPIO_NR(1, 9) , enable); /* DISP_PWM */
 		gpio_direction_output(IMX_GPIO_NR(1, 30) , enable); /* DISP_ON */
 	}
+}
+
+static iomux_v3_cfg_t const status_led_pads[] = {
+	IOMUX_PADS(PAD_DISP0_DAT9__GPIO4_IO30	| MUX_PAD_CTRL(GPIO_PU_PAD_CTRL)),
+};
+
+void setup_iomux_status_led(void)
+{
+	SETUP_IOMUX_PADS(status_led_pads);
+	gpio_direction_output(IMX_GPIO_NR(4, 30), 1);
 }
 
 static void setup_iomux_uart(void)
@@ -422,6 +435,8 @@ int board_early_init_f(void)
 #ifdef CONFIG_VIDEO_IPUV3
 	setup_iomux_bkl();
 #endif
+
+	setup_iomux_status_led();
 
 	setup_iomux_uart();
 	return 0;
