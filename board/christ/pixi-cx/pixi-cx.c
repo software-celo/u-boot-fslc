@@ -52,8 +52,10 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
 
 #define PWM_PAD_CTRL (PAD_CTL_PUS_100K_DOWN |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)	\
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
+#define GPIO_PD_PAD_CTRL (PAD_CTL_PUS_100K_DOWN |		\
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
 #define I2C_PAD MUX_PAD_CTRL(I2C_PAD_CTRL)
 
@@ -142,8 +144,9 @@ static iomux_v3_cfg_t const usdhc4_pads[] = {
 
 
 static iomux_v3_cfg_t const disp0_bkl_pads[] = {
-	IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09	| MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12	| MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09	| MUX_PAD_CTRL(GPIO_PD_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_7__GPIO1_IO07	| MUX_PAD_CTRL(GPIO_PD_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12	| MUX_PAD_CTRL(GPIO_PD_PAD_CTRL)),
 };
 
 
@@ -151,9 +154,25 @@ static void setup_iomux_bkl(void)
 {
 	SETUP_IOMUX_PADS(disp0_bkl_pads);
 
-	/* Set DISP_PWM and BKL_ON to HIGH */
-	gpio_direction_output(IMX_GPIO_NR(1, 9) , 1); /* DISP_PWM */
-	gpio_direction_output(IMX_GPIO_NR(7, 12) , 1); /* BKL_ON */
+	/* Set DISP_PWM and BKL_ON to initially LOW => OFF */
+	gpio_direction_output(IMX_GPIO_NR(1, 7) , 0); /* DISP_ON */
+	gpio_direction_output(IMX_GPIO_NR(7, 12) , 0); /* BKL_ON */
+	gpio_direction_output(IMX_GPIO_NR(1, 9) , 0); /* DISP_PWM */
+}
+
+void board_enable_lvds(const struct display_info_t *di, int enable)
+{
+	if (enable == 1) {
+		gpio_direction_output(IMX_GPIO_NR(1, 7) , enable); /* DISP_ON */
+		mdelay(50);
+		gpio_direction_output(IMX_GPIO_NR(1, 9) , enable); /* DISP_PWM */
+		gpio_direction_output(IMX_GPIO_NR(7, 12) , enable); /* BKL_ON */
+	}
+	else {
+		gpio_direction_output(IMX_GPIO_NR(7, 12) , enable); /* BKL_ON */
+		gpio_direction_output(IMX_GPIO_NR(1, 7) , enable); /* DISP_ON */
+		gpio_direction_output(IMX_GPIO_NR(1, 9) , enable); /* DISP_PWM */
+	}
 }
 
 static iomux_v3_cfg_t const pwm4_pads[] = {
@@ -400,6 +419,9 @@ int board_ehci_power(int port, int on)
 
 int board_early_init_f(void)
 {
+#ifdef CONFIG_VIDEO_IPUV3
+	setup_iomux_bkl();
+#endif
 	setup_iomux_uart();
 	setup_iomux_pwm4();
 	return 0;
@@ -417,9 +439,6 @@ int board_init(void)
 
 #ifdef CONFIG_CMD_FBPANEL
 	fbp_setup_display(displays, ARRAY_SIZE(displays));
-#endif
-#ifdef CONFIG_VIDEO_IPUV3
-	setup_iomux_bkl();
 #endif
 #ifdef CONFIG_USB_EHCI_MX6
 	setup_usb();
