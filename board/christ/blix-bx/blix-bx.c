@@ -512,7 +512,7 @@ int board_late_init(void)
 	else
 		ddr_model = (int) (ddr_size >> 30);
 
-	sprintf(board, "x-b%s%1x00", cpu, ddr_model);
+	sprintf(board, "blix-b%s%1x00", cpu, ddr_model);
 
 	printf("Board: %s\n", board);
 	env_set("board_name", board);
@@ -571,8 +571,8 @@ int board_late_init(void)
 				env_get_yesno("fb_lvds") == -1 ||
 				env_get_yesno("fb_lvds2") == -1){
 			env_set("fb_hdmi", "off");
-			env_set("fb_lcd", "off");
-			env_set("fb_lvds", "*c-wvga");
+			env_set("fb_lcd", "*off");
+			env_set("fb_lvds", "c-wxga");
 			env_set("fb_lvds2", "off");
 		}
 	}
