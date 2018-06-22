@@ -534,15 +534,6 @@ int board_late_init(void)
 
 		printf("EEPROM: Error! [E_ACCESS]\n");
 
-		if (env_get_yesno("fb_hdmi") == -1 ||
-				env_get_yesno("fb_lcd") == -1 ||
-				env_get_yesno("fb_lvds") == -1 ||
-				env_get_yesno("fb_lvds2") == -1){
-			env_set("fb_hdmi", "off");
-			env_set("fb_lcd", "off");
-			env_set("fb_lvds", "*c-wvga");
-			env_set("fb_lvds2", "off");
-		}
 	}
 	else {
 		printf("Device Identifier: ");
@@ -566,15 +557,6 @@ int board_late_init(void)
 
 		printf("EEPROM: Error! [E_ACCESS]\n");
 
-		if (env_get_yesno("fb_hdmi") == -1 ||
-				env_get_yesno("fb_lcd") == -1 ||
-				env_get_yesno("fb_lvds") == -1 ||
-				env_get_yesno("fb_lvds2") == -1){
-			env_set("fb_hdmi", "off");
-			env_set("fb_lcd", "*off");
-			env_set("fb_lvds", "c-wxga");
-			env_set("fb_lvds2", "off");
-		}
 	}
 	else {
 		memcpy(env_cpy, eedi.eeprom_env, 160);
@@ -583,6 +565,16 @@ int board_late_init(void)
 					sizeof(eedi.eeprom_env))){
 			printf("Updating ENV from EEPROM: %s\n", env_cpy);
 		}
+	}
+
+	if (env_get_yesno("fb_hdmi") == -1 ||
+			env_get_yesno("fb_lcd") == -1 ||
+			env_get_yesno("fb_lvds") == -1 ||
+			env_get_yesno("fb_lvds2") == -1){
+		env_set("fb_hdmi", "off");
+		env_set("fb_lcd", "*off");
+		env_set("fb_lvds", "c-wxga");
+		env_set("fb_lvds2", "off");
 	}
 
 #endif
