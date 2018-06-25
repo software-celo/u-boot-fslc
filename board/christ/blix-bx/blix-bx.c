@@ -147,9 +147,23 @@ static void setup_iomux_bkl(void)
 {
 	SETUP_IOMUX_PADS(disp0_bkl_pads);
 
-	/* Set DISP_PWM and BKL_ON to HIGH */
-	gpio_direction_output(IMX_GPIO_NR(1, 9) , 1); /* DISP_PWM */
-	gpio_direction_output(IMX_GPIO_NR(3, 13) , 1); /* BKL_ON */
+	/* Set DISP_PWM and BKL_ON to initially LOW => OFF */
+	gpio_direction_output(IMX_GPIO_NR(3, 13) , 0); /* BKL_ON */
+	gpio_direction_output(IMX_GPIO_NR(1, 9) , 0); /* DISP_PWM */
+
+}
+
+void board_enable_lvds(const struct display_info_t *di, int enable)
+{
+	if (enable == 1) {
+		gpio_direction_output(IMX_GPIO_NR(1, 9), enable); /* DISP_PWM */
+		gpio_direction_output(IMX_GPIO_NR(3, 13), enable); /* BKL_ON */
+	}
+	else {
+		gpio_direction_output(IMX_GPIO_NR(3, 13), enable); /* BKL_ON */
+		gpio_direction_output(IMX_GPIO_NR(1, 9), enable); /* DISP_PWM */
+	}
+
 }
 
 static void setup_iomux_uart(void)
