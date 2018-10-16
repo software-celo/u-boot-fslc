@@ -534,6 +534,7 @@ int board_late_init(void)
 	int ddr_model = 0;
 	char board[10] = {0,};
 	char env_cpy[161];
+	uint8_t reload_display = 0;
 
 	struct eeprom_device_info eedi;
 
@@ -602,6 +603,7 @@ int board_late_init(void)
 		if (insert_env_from_string(eedi.eeprom_env,
 					sizeof(eedi.eeprom_env))){
 			printf("Updating ENV from EEPROM: %s\n", env_cpy);
+			reload_display = 1;
 		}
 	}
 
@@ -613,6 +615,7 @@ int board_late_init(void)
 		env_set("fb_lcd", "*off");
 		env_set("fb_lvds", "c-wxga");
 		env_set("fb_lvds2", "off");
+		reload_display = 1;
 	}
 
 #endif
@@ -627,6 +630,13 @@ int board_late_init(void)
 
 #ifndef CONFIG_ENV_IS_NOWHERE
 	env_save();
+#endif
+
+#ifdef CONFIG_CMD_FBPANEL
+	if (reload_display == 1) {
+		board_enable_lvds(displays, 0);
+		board_video_skip();
+	}
 #endif
 
 	return 0;
