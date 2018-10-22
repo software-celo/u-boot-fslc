@@ -194,6 +194,16 @@ void setup_iomux_status_led(void)
 	gpio_direction_output(IMX_GPIO_NR(4, 30), 1);
 }
 
+static iomux_v3_cfg_t const amp_shutdown_pads[] = {
+	IOMUX_PADS(PAD_CSI0_DAT12__GPIO5_IO30	| MUX_PAD_CTRL(GPIO_PD_PAD_CTRL)),
+};
+
+void setup_iomux_amp_shutdown(void)
+{
+	SETUP_IOMUX_PADS(amp_shutdown_pads);
+	gpio_direction_output(IMX_GPIO_NR(5, 30), 0);
+}
+
 static void setup_iomux_uart(void)
 {
 	SETUP_IOMUX_PADS(uart1_pads);
@@ -436,6 +446,7 @@ int board_early_init_f(void)
 	setup_iomux_bkl();
 #endif
 
+	setup_iomux_amp_shutdown();
 	setup_iomux_status_led();
 
 	setup_iomux_uart();
