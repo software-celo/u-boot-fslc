@@ -952,9 +952,9 @@ static void usb_stor_set_max_xfer_blk(struct usb_device *udev,
 	 * The U-Boot EHCI driver can handle any transfer length as long as
 	 * there is enough free heap space left, but the SCSI READ(10) and
 	 * WRITE(10) commands are limited to 65535 blocks.
-	 * Use only 32767 as this improves compatibility with usb sticks drastically.
+	 * Use only 4096 as this improves compatibility with usb sticks drastically.
 	 */
-	blk = USHRT_MAX / 2;
+	blk = 4096;
 #else
 	blk = 20;
 #endif
