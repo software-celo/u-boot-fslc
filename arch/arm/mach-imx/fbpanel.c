@@ -255,8 +255,10 @@ static void setup_cmd_fb(unsigned fb, const struct display_info_t *di, char *buf
 				(di->pixfmt == IPU_PIX_FMT_RGB24) ? 24 : 18);
 
 #else
-		sz = snprintf(buf, size, "fdt set %s interface_pix_fmt %s;",
-				fbnames[fb], fmt);
+		sz = snprintf(buf, size, "fdt set %s data-mapping %s-%u;",
+				fbnames[fb],
+				(di->fbflags & FBF_JEIDA) ? "jeida" : (di->pixfmt != IPU_PIX_FMT_RGB24) ? "jeida" : "vesa",
+				(di->pixfmt == IPU_PIX_FMT_RGB24) ? 24 : 18);
 #endif
 		buf += sz;
 		size -= sz;
@@ -276,6 +278,14 @@ static void setup_cmd_fb(unsigned fb, const struct display_info_t *di, char *buf
 
 	if (di && ((fb == FB_LVDS) || (fb == FB_LVDS2))) {
 
+
+		u32 x_res = *(u32 *)((char *)&di->mode + timings_offsets[1]);
+		u32 y_res = *(u32 *)((char *)&di->mode + timings_offsets[2]);
+		sz = snprintf(buf, size, "fdt set fb_lvds compatible christ,%ux%u panel-lvds;",
+				x_res, y_res);
+		buf += sz;
+		size -= sz;
+
 		sz = snprintf(buf, size, "fdt set %s fsl,data-width <%u>;",
 				ch_names[fb],
 				(di->pixfmt == IPU_PIX_FMT_RGB24) ? 24 : 18);
@@ -289,7 +299,7 @@ static void setup_cmd_fb(unsigned fb, const struct display_info_t *di, char *buf
 		size -= sz;
 
 		if (di->fbflags & FBF_SPLITMODE) {
-			sz = snprintf(buf, size, "fdt set ldb split-mode 1;");
+			sz = snprintf(buf, size, "fdt set ldb fsl,dual-channel 1;");
 			buf += sz;
 			size -= sz;
 		}
