@@ -1,0 +1,12 @@
+if TARGET_4CBOXCX
+
+config SYS_BOARD
+	default "4cbox-cx"
+
+config SYS_VENDOR
+	default "christ"
+
+config SYS_CONFIG_NAME
+	default "4cbox-cx"
+
+endif

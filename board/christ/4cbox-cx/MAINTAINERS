@@ -1,0 +1,7 @@
+4CBOX-CXX BOARD
+M:	Peter Fink <pfink@christ-es.de>
+S:	Maintained
+F:	board/christ/4cbox-cx/
+F:	include/configs/4cbox-cx.h
+F:	configs/4cbox-cdl100_defconfig
+F:	configs/4cbox-cq100_defconfig
