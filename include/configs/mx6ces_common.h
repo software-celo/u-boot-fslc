@@ -175,6 +175,7 @@
 #define EEPROM_ADDR_END			0x338
 
 /* Framebuffer */
+#ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
@@ -185,6 +186,7 @@
 #define CONFIG_HIDE_LOGO_VERSION
 #define CONFIG_IMX_HDMI
 #define CONFIG_CMD_FBPANEL
+#endif
 
 #define CONFIG_FAT_WRITE
 
