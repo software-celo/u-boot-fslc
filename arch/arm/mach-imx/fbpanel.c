@@ -255,6 +255,11 @@ static void setup_cmd_fb(unsigned fb, const struct display_info_t *di, char *buf
 				(di->pixfmt == IPU_PIX_FMT_RGB24) ? 24 : 18);
 
 #else
+		sz = snprintf(buf, size, "fdt set %s interface_pix_fmt %s;",
+				fbnames[fb], fmt);
+		buf += sz;
+		size -= sz;
+
 		sz = snprintf(buf, size, "fdt set %s data-mapping %s-%u;",
 				fbnames[fb],
 				(di->fbflags & FBF_JEIDA) ? "jeida" : (di->pixfmt != IPU_PIX_FMT_RGB24) ? "jeida" : "vesa",
@@ -299,6 +304,10 @@ static void setup_cmd_fb(unsigned fb, const struct display_info_t *di, char *buf
 		size -= sz;
 
 		if (di->fbflags & FBF_SPLITMODE) {
+			sz = snprintf(buf, size, "fdt set ldb split-mode 1;");
+			buf += sz;
+			size -= sz;
+
 			sz = snprintf(buf, size, "fdt set ldb fsl,dual-channel 1;");
 			buf += sz;
 			size -= sz;

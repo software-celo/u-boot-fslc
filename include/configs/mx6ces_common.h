@@ -90,6 +90,7 @@
 			"echo WARN: Cannot load the DT; " \
 		"fi\0" \
 	"loadcurt=fatload usb ${bootdev}:${bootpart} ${curt_addr} ${curt_file}\0" \
+	"updatecurtfdt=fdt set fb_lvds compatible fsl,mxc_sdc_fb\0" \
 	"curtboot=echo Booting CURT ...; " \
 		"bootm start ${curt_addr}#config@${curt_config}; " \
 		"bootm loados; " \
@@ -97,6 +98,7 @@
 		"bootm fdt; " \
 		"run updatefdt; " \
 		"run setdisplay; " \
+		"run updatecurtfdt; " \
 		"bootm prep; " \
 		"bootm go\0" \
 
