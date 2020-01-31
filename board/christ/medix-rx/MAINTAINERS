@@ -1,0 +1,6 @@
+MEDIX-RXX BOARD
+M:	Peter Fink <pfink@christ-es.de>
+S:	Maintained
+F:	board/christ/medix-rx/
+F:	include/configs/medix-rx.h
+F:	configs/medix-rq100_defconfig

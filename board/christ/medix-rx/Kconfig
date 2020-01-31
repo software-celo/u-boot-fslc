@@ -1,0 +1,12 @@
+if TARGET_MEDIXRX
+
+config SYS_BOARD
+	default "medix-rx"
+
+config SYS_VENDOR
+	default "christ"
+
+config SYS_CONFIG_NAME
+	default "medix-rx"
+
+endif
