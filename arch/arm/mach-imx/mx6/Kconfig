@@ -227,6 +227,14 @@ config TARGET_MEDIXRX
 	select DM_THERMAL
 	select BOARD_EARLY_INIT_F
 
+config TARGET_MEDIXTX
+	bool "medix-tx"
+	select MX6QDL
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select BOARD_EARLY_INIT_F
+
 config TARGET_MX6CUBOXI
 	bool "Solid-run mx6 boards"
 	select MX6QDL
@@ -491,6 +499,7 @@ source "board/christ/blix-bx/Kconfig"
 source "board/christ/crix-arx/Kconfig"
 source "board/christ/crix-cx/Kconfig"
 source "board/christ/medix-rx/Kconfig"
+source "board/christ/medix-tx/Kconfig"
 source "board/christ/pixi-cx/Kconfig"
 source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"

@@ -1,0 +1,6 @@
+MEDIX-RXX BOARD
+M:	Peter Fink <pfink@christ-es.de>
+S:	Maintained
+F:	board/christ/medix-tx/
+F:	include/configs/medix-tx.h
+F:	configs/medix-tdl100_defconfig
