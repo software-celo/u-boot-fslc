@@ -1294,7 +1294,7 @@ void fbp_setup_display(const struct display_info_t *displays, int cnt);
 	.mode	= {\
 		.name           = _name,\
 		.refresh        = 1000000000000ULL/((1366+72+216+144)*(768+1+23+3)*13157ULL), /* 53.17 Hz */ \
-		.xres           = 1366,\
+		.xres           = 1368,\
 		.yres           = 768,\
 		.pixclock       = 13157, /* in ps 10⁻12 = 76.005 Mhz */ \
 		.left_margin    = 72,\
