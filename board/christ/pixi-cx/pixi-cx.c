@@ -361,12 +361,7 @@ int board_eth_init(bd_t *bis)
 #define UCTRL_PWR_POL		(1 << 9)
 
 static iomux_v3_cfg_t const usb_otg_pads[] = {
-	IOMUX_PADS(PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_ENET_RX_ER__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL)),
-};
-
-static iomux_v3_cfg_t const usb_hc1_pads[] = {
-	IOMUX_PADS(PAD_GPIO_5__GPIO1_IO05 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static void setup_usb(void)
@@ -378,8 +373,6 @@ static void setup_usb(void)
 	 * for 6dl, this bit is reserved
 	 */
 	imx_iomux_set_gpr_register(1, 13, 1, 0);
-
-	SETUP_IOMUX_PADS(usb_hc1_pads);
 }
 
 int board_ehci_hcd_init(int port)
