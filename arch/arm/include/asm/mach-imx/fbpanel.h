@@ -105,6 +105,7 @@ void fbp_setup_display(const struct display_info_t *displays, int cnt);
 #define VD_A030JN01_YUV720(_mode, _detect, _bus, _addr) VDF_A030JN01_YUV720(_mode, "A030JN01_YUV720", YUYV, FBF_MODESTR | FBF_SPI, _detect, _bus, _addr)
 #define VD_KD024FM(_mode, _detect, _bus, _addr)		VDF_KD024FM(_mode, "KD024FM", RGB666, FBF_MODESTR, _detect, _bus, _addr)
 #define VD_C_WVGA(_mode, _detect, _bus, _addr)		VDF_C_WVGA(_mode, "c-wvga", RGB666, 0, _detect, _bus, _addr)
+#define VD_C_WVGA24(_mode, _detect, _bus, _addr)	VDF_C_WVGA(_mode, "c-wvga24", RGB24, 0, _detect, _bus, _addr)
 #define VD_C_SVGA(_mode, _detect, _bus, _addr)		VDF_C_SVGA(_mode, "c-svga", RGB666, 0, _detect, _bus, _addr)
 #define VD_C_XGA(_mode, _detect, _bus, _addr)		VDF_C_XGA(_mode, "c-xga", RGB24, 0, _detect, _bus, _addr)
 #define VD_C_XGA_INNOLUX(_mode, _detect, _bus, _addr)	VDF_C_XGA_INNOLUX(_mode, "c-xga-innolux", RGB666, 0, _detect, _bus, _addr)
