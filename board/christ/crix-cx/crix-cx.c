@@ -319,6 +319,7 @@ static const struct display_info_t displays[] = {
 
 	/* LVDS */
 	VD_C_WVGA(LVDS, NULL, 0, 0x00),
+	VD_C_WVGA24(LVDS, NULL, 0, 0x00),
 	VD_C_SVGA(LVDS, NULL, 0, 0x00),
 	VD_C_XGA(LVDS, NULL, 0, 0x00),
 	VD_C_XGA_INNOLUX(LVDS, NULL, 0, 0x00),
@@ -329,6 +330,7 @@ static const struct display_info_t displays[] = {
 
 	/* LVDS 2 */
 	VD_C_WVGA(LVDS2, NULL, 0, 0x00),
+	VD_C_WVGA24(LVDS2, NULL, 0, 0x00),
 	VD_C_SVGA(LVDS2, NULL, 0, 0x00),
 	VD_C_XGA(LVDS2, NULL, 0, 0x00),
 	VD_C_XGA_INNOLUX(LVDS2, NULL, 0, 0x00),
