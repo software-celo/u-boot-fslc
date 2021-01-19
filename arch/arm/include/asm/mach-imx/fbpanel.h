@@ -113,6 +113,7 @@ void fbp_setup_display(const struct display_info_t *displays, int cnt);
 #define VD_C_SXGA(_mode, _detect, _bus, _addr)		VDF_C_SXGA(_mode, "c-sxga", RGB24, 0, _detect, _bus, _addr)
 #define VD_C_FWXGA(_mode, _detect, _bus, _addr)		VDF_C_FWXGA(_mode, "c-fwxga", RGB24, 0, _detect, _bus, _addr)
 #define VD_C_FULLHD(_mode, _detect, _bus, _addr)	VDF_C_FULLHD(_mode, "c-fullhd", RGB24, FBF_SPLITMODE, _detect, _bus, _addr)
+#define VD_C_FULLHD_J(_mode, _detect, _bus, _addr)	VDF_C_FULLHD(_mode, "c-fullhd-j", RGB24, FBF_JEIDA | FBF_SPLITMODE, _detect, _bus, _addr)
 
 #define VD_HEADER(_mode, _fmt, _flags, _detect, _bus, _addr) \
 	.bus	= _bus,\
