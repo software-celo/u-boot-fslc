@@ -316,6 +316,7 @@ static const struct display_info_t displays[] = {
 	VD_C_SXGA(LVDS, NULL, 0, 0x00),
 	VD_C_FWXGA(LVDS, NULL, 0, 0x00),
 	VD_C_FULLHD(LVDS, NULL, 0, 0x00),
+	VD_C_FULLHD_J(LVDS, NULL, 0, 0x00),
 
 	/* LVDS 2 */
 	VD_C_WVGA(LVDS2, NULL, 0, 0x00),
@@ -327,6 +328,7 @@ static const struct display_info_t displays[] = {
 	VD_C_SXGA(LVDS2, NULL, 0, 0x00),
 	VD_C_FWXGA(LVDS2, NULL, 0, 0x00),
 	VD_C_FULLHD(LVDS2, NULL, 0, 0x00),
+	VD_C_FULLHD_J(LVDS2, NULL, 0, 0x00)
 };
 
 #endif /* CONFIG_VIDEO_IPUV3 */
